@@ -33,10 +33,6 @@ body {
 }
 #lockScreen h1 {
     font-size: 70px;
-    animation: float 3s infinite;
-}
-@keyframes float {
-    50% {transform: translateY(-10px);}
 }
 
 /* Dock */
@@ -66,18 +62,14 @@ body {
     top: 120px;
     left: 120px;
     width: 350px;
-    background: black;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
     border: 1px solid white;
     border-radius: 12px;
     padding: 15px;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: 0.3s;
 }
 .window.active {
     display: block;
-    opacity: 1;
-    transform: scale(1);
 }
 .titlebar {
     display: flex;
@@ -128,10 +120,7 @@ button:hover {
     <div class="icon" onclick="openApp('notes')"><img src="https://img.icons8.com/fluency/48/note.png"></div>
     <div class="icon" onclick="openChrome()"><img src="https://img.icons8.com/color/48/chrome--v1.png"></div>
     <div class="icon" onclick="openChatGPT()"><img src="https://img.icons8.com/fluency/48/bot.png"></div>
-
-    <!-- SPOTIFY -->
     <div class="icon" onclick="openSpotify()"><img src="https://img.icons8.com/fluency/48/spotify.png"></div>
-
     <div class="icon" onclick="openApp('settings')"><img src="https://img.icons8.com/fluency/48/settings.png"></div>
 </div>
 
@@ -168,13 +157,26 @@ button:hover {
 <textarea id="note"></textarea>
 </div>
 
+<!-- CALCULATOR -->
+<div id="calc" class="window">
+<div class="titlebar"><b>Calculator</b><button onclick="closeApp('calc')">❌</button></div>
+<input id="calcInput" placeholder="2+2">
+<button onclick="calculate()">=</button>
+<h3 id="calcResult"></h3>
+</div>
+
+<!-- STATS -->
+<div id="stats" class="window">
+<div class="titlebar"><b>Stats</b><button onclick="closeApp('stats')">❌</button></div>
+<p id="studySessions"></p>
+<p id="totalStudyTime"></p>
+</div>
+
 <!-- SETTINGS -->
 <div id="settings" class="window">
 <div class="titlebar"><b>Settings</b><button onclick="closeApp('settings')">❌</button></div>
-
 <button onclick="setWallpaper('https://wallpaperaccess.com/full/317501.jpg')">Ocean</button>
 <button onclick="setWallpaper('black')">Black</button>
-
 <input id="customWall" placeholder="Paste image URL">
 <button onclick="setCustomWallpaper()">Custom</button>
 </div>
@@ -203,52 +205,27 @@ u(); b.addEventListener("levelchange",u);
 });
 
 /* QUOTES */
-let quotes=[
-"Stay focused.","Discipline wins.","Push yourself.",
-"Dream big.","Make today count.","Stay hungry.",
-"Don’t quit.","You got this.","Be consistent.",
-"Focus beats distraction.","Win the day."
-];
-function setQuote(){
-let el=quote;
-el.style.opacity=0;
-setTimeout(()=>{
-el.innerText='"'+quotes[new Date().getDate()%quotes.length]+'"';
-el.style.opacity=1;
-},300);
-}
-setQuote();
+let quotes=["Stay focused.","Discipline wins.","Push yourself.","Dream big."];
+quote.innerText='"'+quotes[new Date().getDate()%quotes.length]+'"';
 
 /* WINDOWS */
 function openApp(id){document.getElementById(id).classList.add("active")}
 function closeApp(id){document.getElementById(id).classList.remove("active")}
 
-/* CHROME + AI */
+/* APPS */
 function openChrome(){window.open("https://google.com")}
 function openChatGPT(){window.open("https://chatgpt.com")}
+function openSpotify(){window.open("https://open.spotify.com")}
 
-/* SPOTIFY */
-function openSpotify(){
-    window.open("https://open.spotify.com");
-}
-
-/* DRAG */
+/* DRAG FIX */
 document.querySelectorAll(".window").forEach((w,i)=>{
-let pos=JSON.parse(localStorage.getItem("win"+i)||"{}");
-if(pos.left){w.style.left=pos.left; w.style.top=pos.top;}
-
-w.onmousedown=e=>{
+w.querySelector(".titlebar").onmousedown=e=>{
 let x=e.clientX-w.offsetLeft,y=e.clientY-w.offsetTop;
 document.onmousemove=e=>{
 w.style.left=e.clientX-x+"px";
 w.style.top=e.clientY-y+"px";
 }
-document.onmouseup=()=>{
-document.onmousemove=null;
-localStorage.setItem("win"+i,JSON.stringify({
-left:w.style.left, top:w.style.top
-}));
-};
+document.onmouseup=()=>{document.onmousemove=null;}
 };
 });
 
@@ -270,20 +247,43 @@ let arr=[];
 document.querySelectorAll("#taskList li").forEach(li=>arr.push(li.innerText));
 localStorage.setItem("tasks",JSON.stringify(arr));
 }
-function loadTasks(){
 (JSON.parse(localStorage.getItem("tasks")||"[]"))
 .forEach(t=>taskList.appendChild(createTask(t)));
-}
-loadTasks();
 
-/* NOTES AUTO SAVE */
+/* NOTES SAVE */
 note.value=localStorage.getItem("note")||"";
 note.oninput=()=>localStorage.setItem("note",note.value);
 
-/* TIMER SAVE */
+/* CALCULATOR */
+function calculate(){
+try{calcResult.innerText=eval(calcInput.value);}
+catch{calcResult.innerText="Error";}
+}
+
+/* STATS */
+let sessions=parseInt(localStorage.getItem("sessions"))||0;
+let totalTime=parseInt(localStorage.getItem("totalTime"))||0;
+function updateStats(){
+studySessions.innerText="Sessions: "+sessions;
+totalStudyTime.innerText="Total Time: "+Math.floor(totalTime/60)+" mins";
+}
+updateStats();
+
+/* TIMER */
 let studyTime=parseInt(localStorage.getItem("studyTime"))||1500;
 let breakTime=parseInt(localStorage.getItem("breakTime"))||300;
-let time=studyTime,isStudy=true,int;
+
+let savedTimer=JSON.parse(localStorage.getItem("timerState")||"null");
+let time=savedTimer?.time||studyTime;
+let isStudy=savedTimer?.isStudy??true;
+let int;
+
+function updateTimerDisplay(){
+let m=Math.floor(time/60),s=time%60;
+document.getElementById("time").innerText=
+`${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+}
+updateTimerDisplay();
 
 function setPomodoroTimes(){
 let s=parseInt(studyTimeInput.value),
@@ -291,35 +291,44 @@ b=parseInt(breakTimeInput.value);
 if(s){studyTime=s*60; localStorage.setItem("studyTime",studyTime);}
 if(b){breakTime=b*60; localStorage.setItem("breakTime",breakTime);}
 time=studyTime;
+updateTimerDisplay();
 }
+
 function startTimer(){
 clearInterval(int);
 int=setInterval(()=>{
 time--;
+
 if(time<=0){
+if(isStudy){
+sessions++;
+totalTime+=studyTime;
+localStorage.setItem("sessions",sessions);
+localStorage.setItem("totalTime",totalTime);
+}
 isStudy=!isStudy;
 time=isStudy?studyTime:breakTime;
-alert(isStudy?"Study":"Break");
+updateStats();
 }
-let m=Math.floor(time/60),s=time%60;
-document.getElementById("time").innerText=
-`${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+updateTimerDisplay();
 },1000);
 }
-function pauseTimer(){clearInterval(int)}
-function resetTimer(){time=studyTime}
 
-/* WALLPAPER SAVE */
+function pauseTimer(){clearInterval(int)}
+function resetTimer(){time=studyTime; updateTimerDisplay();}
+
+/* AUTO SAVE TIMER */
+setInterval(()=>{
+localStorage.setItem("timerState",JSON.stringify({time,isStudy}));
+},2000);
+
+/* WALLPAPER */
 function setWallpaper(url){
-if(url==="black"){
-document.body.style.background="black";
-}else{
-document.body.style.background=`url('${url}') center/cover fixed`;
-}
+if(url==="black"){document.body.style.background="black";}
+else{document.body.style.background=`url('${url}') center/cover fixed`;}
 localStorage.setItem("wallpaper",url);
 }
 function setCustomWallpaper(){setWallpaper(customWall.value);}
-
 let savedWall=localStorage.getItem("wallpaper");
 if(savedWall) setWallpaper(savedWall);
 
@@ -327,3 +336,4 @@ if(savedWall) setWallpaper(savedWall);
 
 </body>
 </html>
+

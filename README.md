@@ -56,7 +56,7 @@ A lightweight, browser-based **study operating system** designed to boost produc
 
 ### 🧮 Calculator
 
-* Quick access basic calculator (UI ready for expansion)
+* Quick access advanced calculator.
 
 ---
 

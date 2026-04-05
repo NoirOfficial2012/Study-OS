@@ -4,336 +4,306 @@
 <meta charset="UTF-8">
 <title>Study OS</title>
 
+<!-- FONTS -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet">
+
 <style>
-body {
-    margin: 0;
-    font-family: 'Segoe UI', sans-serif;
-    background: black;
-    background-size: cover;
-    color: white;
-    overflow: hidden;
+
+/* BASE */
+body{
+margin:0;
+font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+background:url('https://wallpaperaccess.com/full/317501.jpg') center/cover fixed;
+color:white;
+overflow:hidden;
+}
+
+/* GLASS EFFECT */
+.glass{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(18px);
+border:1px solid rgba(255,255,255,0.15);
+box-shadow:0 8px 30px rgba(0,0,0,0.4);
 }
 
 /* LOCK SCREEN */
-#lockScreen {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background: black;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-    transition: 0.8s;
+#lockScreen{
+position:fixed;
+width:100%;height:100%;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+z-index:9999;
+transition:0.6s;
+background:black;
 }
-#lockScreen.hidden {
-    opacity: 0;
-    transform: scale(1.1);
-}
-#lockScreen h1 {
-    font-size: 70px;
+#lockScreen.hidden{
+opacity:0;
+transform:scale(1.05);
 }
 
-/* Dock */
-.dock {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 20px;
-    background: rgba(0,0,0,0.7);
-    padding: 12px 25px;
-    border-radius: 30px;
-}
-.icon img {
-    width: 45px;
-    transition: 0.3s;
-}
-.icon:hover img {
-    transform: scale(1.5) translateY(-10px);
+#timeDisplay{
+font-family:'Orbitron',sans-serif;
+font-size:80px;
+letter-spacing:2px;
 }
 
-/* Windows */
-.window {
-    display: none;
-    position: absolute;
-    top: 120px;
-    left: 120px;
-    width: 350px;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(10px);
-    border: 1px solid white;
-    border-radius: 12px;
-    padding: 15px;
+/* DOCK */
+.dock{
+position:fixed;
+bottom:20px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+gap:20px;
+padding:14px 28px;
+border-radius:40px;
 }
-.window.active {
-    display: block;
+.icon img{
+width:46px;
+transition:.3s;
 }
-.titlebar {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid white;
-    cursor: move;
+.icon:hover img{
+transform:scale(1.5) translateY(-12px);
 }
 
-/* Inputs */
-input, textarea {
-    width: 100%;
-    background: black;
-    color: white;
-    border: 1px solid white;
+/* WINDOWS */
+.window{
+display:none;
+position:absolute;
+top:120px;
+left:120px;
+width:380px;
+border-radius:16px;
+padding:15px;
+}
+.window.active{display:block;}
+
+.titlebar{
+display:flex;
+justify-content:space-between;
+cursor:move;
+border-bottom:1px solid rgba(255,255,255,0.2);
+margin-bottom:8px;
 }
 
-/* Buttons */
-button {
-    border: 1px solid white;
-    background: black;
-    color: white;
-    padding: 6px;
-    cursor: pointer;
+/* INPUTS */
+input,textarea{
+width:100%;
+background:rgba(0,0,0,0.6);
+color:white;
+border:1px solid rgba(255,255,255,0.2);
+padding:6px;
+border-radius:6px;
 }
-button:hover {
-    background: white;
-    color: black;
+
+/* BUTTON */
+button{
+border:none;
+background:rgba(255,255,255,0.1);
+color:white;
+padding:6px;
+border-radius:6px;
+cursor:pointer;
 }
+button:hover{
+background:white;
+color:black;
+}
+
+/* CALC */
+.calc-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:6px;
+}
+#display{
+height:40px;
+font-size:18px;
+text-align:right;
+}
+
+#historyPanel{
+font-size:12px;
+max-height:80px;
+overflow:auto;
+margin-top:8px;
+opacity:0.8;
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- LOCK SCREEN -->
+<!-- LOCK -->
 <div id="lockScreen">
-    <h1 id="timeDisplay"></h1>
-    <p id="battery"></p>
-    <p id="quote"></p>
-    <small>Click to unlock</small>
+<h1 id="timeDisplay"></h1>
+<p id="quote"></p>
+<small>Click to unlock</small>
 </div>
 
-<!-- Dock -->
-<div class="dock">
-    <div class="icon" onclick="openApp('timer')"><img src="https://img.icons8.com/fluency/48/timer.png"></div>
-    <div class="icon" onclick="openApp('tasks')"><img src="https://img.icons8.com/fluency/48/task.png"></div>
-    <div class="icon" onclick="openApp('stats')"><img src="https://img.icons8.com/fluency/48/combo-chart.png"></div>
-    <div class="icon" onclick="openApp('calc')"><img src="https://img.icons8.com/fluency/48/calculator.png"></div>
-    <div class="icon" onclick="openApp('notes')"><img src="https://img.icons8.com/fluency/48/note.png"></div>
-    <div class="icon" onclick="openChrome()"><img src="https://img.icons8.com/color/48/chrome--v1.png"></div>
-    <div class="icon" onclick="openChatGPT()"><img src="https://img.icons8.com/fluency/48/bot.png"></div>
-    <div class="icon" onclick="openSpotify()"><img src="https://img.icons8.com/fluency/48/spotify.png"></div>
-    <div class="icon" onclick="openApp('settings')"><img src="https://img.icons8.com/fluency/48/settings.png"></div>
+<!-- DOCK -->
+<div class="dock glass">
+<div class="icon" onclick="openApp('timer')"><img src="https://img.icons8.com/fluency/48/timer.png"></div>
+<div class="icon" onclick="openApp('tasks')"><img src="https://img.icons8.com/fluency/48/task.png"></div>
+<div class="icon" onclick="openApp('stats')"><img src="https://img.icons8.com/fluency/48/combo-chart.png"></div>
+<div class="icon" onclick="openApp('calc')"><img src="https://img.icons8.com/fluency/48/calculator.png"></div>
+<div class="icon" onclick="openApp('notes')"><img src="https://img.icons8.com/fluency/48/note.png"></div>
+<div class="icon" onclick="openChrome()"><img src="https://img.icons8.com/color/48/chrome--v1.png"></div>
+<div class="icon" onclick="openChatGPT()"><img src="https://img.icons8.com/fluency/48/bot.png"></div>
+<div class="icon" onclick="openSpotify()"><img src="https://img.icons8.com/fluency/48/spotify.png"></div>
+<div class="icon" onclick="openApp('settings')"><img src="https://img.icons8.com/fluency/48/settings.png"></div>
 </div>
 
 <!-- TIMER -->
-<div id="timer" class="window">
-<div class="titlebar"><b>Pomodoro</b><button onclick="closeApp('timer')">❌</button></div>
-
-<p id="mode">Study</p>
+<div id="timer" class="window glass">
+<div class="titlebar"><b>Pomodoro</b><button onclick="closeApp('timer')">✕</button></div>
 <h2 id="time">25:00</h2>
-
-<p>Study (min):</p>
-<input id="studyTimeInput">
-
-<p>Break (min):</p>
-<input id="breakTimeInput">
-
-<button onclick="setPomodoroTimes()">Set</button>
 <button onclick="startTimer()">Start</button>
 <button onclick="pauseTimer()">Pause</button>
-<button onclick="resetTimer()">Reset</button>
 </div>
 
 <!-- TASKS -->
-<div id="tasks" class="window">
-<div class="titlebar"><b>Tasks</b><button onclick="closeApp('tasks')">❌</button></div>
+<div id="tasks" class="window glass">
+<div class="titlebar"><b>Tasks</b><button onclick="closeApp('tasks')">✕</button></div>
 <input id="taskInput">
 <button onclick="addTask()">Add</button>
 <ul id="taskList"></ul>
 </div>
 
 <!-- NOTES -->
-<div id="notes" class="window">
-<div class="titlebar"><b>Notes</b><button onclick="closeApp('notes')">❌</button></div>
+<div id="notes" class="window glass">
+<div class="titlebar"><b>Notes</b><button onclick="closeApp('notes')">✕</button></div>
 <textarea id="note"></textarea>
 </div>
 
 <!-- CALCULATOR -->
-<div id="calc" class="window">
-<div class="titlebar"><b>Calculator</b><button onclick="closeApp('calc')">❌</button></div>
-<input id="calcInput" placeholder="2+2">
+<div id="calc" class="window glass">
+<div class="titlebar"><b>Calculator</b><button onclick="closeApp('calc')">✕</button></div>
+<input id="display" readonly>
+
+<div class="calc-grid">
+<button onclick="press('Math.sin(')">sin</button>
+<button onclick="press('Math.cos(')">cos</button>
+<button onclick="press('Math.sqrt(')">√</button>
+<button onclick="press('/')">÷</button>
+
+<button onclick="press('7')">7</button>
+<button onclick="press('8')">8</button>
+<button onclick="press('9')">9</button>
+<button onclick="press('*')">×</button>
+
+<button onclick="press('4')">4</button>
+<button onclick="press('5')">5</button>
+<button onclick="press('6')">6</button>
+<button onclick="press('-')">−</button>
+
+<button onclick="press('1')">1</button>
+<button onclick="press('2')">2</button>
+<button onclick="press('3')">3</button>
+<button onclick="press('+')">+</button>
+
+<button onclick="press('0')">0</button>
+<button onclick="press('.')">.</button>
 <button onclick="calculate()">=</button>
-<h3 id="calcResult"></h3>
+<button onclick="clearCalc()">C</button>
+</div>
+
+<div id="historyPanel"></div>
 </div>
 
 <!-- STATS -->
-<div id="stats" class="window">
-<div class="titlebar"><b>Stats</b><button onclick="closeApp('stats')">❌</button></div>
+<div id="stats" class="window glass">
+<div class="titlebar"><b>Stats</b><button onclick="closeApp('stats')">✕</button></div>
 <p id="studySessions"></p>
-<p id="totalStudyTime"></p>
 </div>
 
 <!-- SETTINGS -->
-<div id="settings" class="window">
-<div class="titlebar"><b>Settings</b><button onclick="closeApp('settings')">❌</button></div>
+<div id="settings" class="window glass">
+<div class="titlebar"><b>Settings</b><button onclick="closeApp('settings')">✕</button></div>
 <button onclick="setWallpaper('https://wallpaperaccess.com/full/317501.jpg')">Ocean</button>
 <button onclick="setWallpaper('black')">Black</button>
-<input id="customWall" placeholder="Paste image URL">
-<button onclick="setCustomWallpaper()">Custom</button>
+<input id="customWall">
+<button onclick="setWallpaper(customWall.value)">Custom</button>
 </div>
 
 <script>
 
-/* LOCK SCREEN */
+/* LOCK */
 lockScreen.onclick=()=>{
 lockScreen.classList.add("hidden");
-setTimeout(()=>lockScreen.style.display="none",800);
+setTimeout(()=>lockScreen.style.display="none",600);
 };
 
-/* TIME */
-function updateTime(){
+/* CLOCK */
+setInterval(()=>{
 let d=new Date();
 timeDisplay.innerText=
 d.getHours().toString().padStart(2,'0')+":"+
 d.getMinutes().toString().padStart(2,'0');
-}
-setInterval(updateTime,1000); updateTime();
-
-/* BATTERY */
-navigator.getBattery().then(b=>{
-function u(){battery.innerText="Battery: "+Math.floor(b.level*100)+"%";}
-u(); b.addEventListener("levelchange",u);
-});
-
-/* QUOTES */
-let quotes=["Stay focused.","Discipline wins.","Push yourself.","Dream big."];
-quote.innerText='"'+quotes[new Date().getDate()%quotes.length]+'"';
+},1000);
 
 /* WINDOWS */
 function openApp(id){document.getElementById(id).classList.add("active")}
 function closeApp(id){document.getElementById(id).classList.remove("active")}
 
-/* APPS */
-function openChrome(){window.open("https://google.com")}
-function openChatGPT(){window.open("https://chatgpt.com")}
-function openSpotify(){window.open("https://open.spotify.com")}
-
-/* DRAG FIX */
-document.querySelectorAll(".window").forEach((w,i)=>{
+/* DRAG */
+document.querySelectorAll(".window").forEach(w=>{
 w.querySelector(".titlebar").onmousedown=e=>{
 let x=e.clientX-w.offsetLeft,y=e.clientY-w.offsetTop;
 document.onmousemove=e=>{
 w.style.left=e.clientX-x+"px";
 w.style.top=e.clientY-y+"px";
-}
-document.onmouseup=()=>{document.onmousemove=null;}
+};
+document.onmouseup=()=>document.onmousemove=null;
 };
 });
 
-/* TASKS SAVE */
-function createTask(text){
-let li=document.createElement("li");
-li.innerText=text;
-li.onclick=()=>{li.remove(); saveTasks();};
-return li;
+/* CALC */
+let val="",history=[];
+function press(x){val+=x;display.value=val;}
+function clearCalc(){val="";display.value="";}
+function calculate(){
+try{
+let r=Function('"use strict";return ('+val+')')();
+history.unshift(val+"="+r);
+display.value=r;
+val=r;
+historyPanel.innerHTML=history.slice(0,5).join("<br>");
+}catch{display.value="Error";}
 }
-function addTask(){
-if(!taskInput.value) return;
-taskList.appendChild(createTask(taskInput.value));
-taskInput.value="";
-saveTasks();
-}
-function saveTasks(){
-let arr=[];
-document.querySelectorAll("#taskList li").forEach(li=>arr.push(li.innerText));
-localStorage.setItem("tasks",JSON.stringify(arr));
-}
-(JSON.parse(localStorage.getItem("tasks")||"[]"))
-.forEach(t=>taskList.appendChild(createTask(t)));
 
-/* NOTES SAVE */
+/* TASKS */
+function addTask(){
+let li=document.createElement("li");
+li.innerText=taskInput.value;
+li.onclick=()=>li.remove();
+taskList.appendChild(li);
+taskInput.value="";
+}
+
+/* NOTES */
 note.value=localStorage.getItem("note")||"";
 note.oninput=()=>localStorage.setItem("note",note.value);
 
-/* CALCULATOR */
-function calculate(){
-try{calcResult.innerText=eval(calcInput.value);}
-catch{calcResult.innerText="Error";}
-}
-
-/* STATS */
-let sessions=parseInt(localStorage.getItem("sessions"))||0;
-let totalTime=parseInt(localStorage.getItem("totalTime"))||0;
-function updateStats(){
-studySessions.innerText="Sessions: "+sessions;
-totalStudyTime.innerText="Total Time: "+Math.floor(totalTime/60)+" mins";
-}
-updateStats();
-
-/* TIMER */
-let studyTime=parseInt(localStorage.getItem("studyTime"))||1500;
-let breakTime=parseInt(localStorage.getItem("breakTime"))||300;
-
-let savedTimer=JSON.parse(localStorage.getItem("timerState")||"null");
-let time=savedTimer?.time||studyTime;
-let isStudy=savedTimer?.isStudy??true;
-let int;
-
-function updateTimerDisplay(){
-let m=Math.floor(time/60),s=time%60;
-document.getElementById("time").innerText=
-`${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-}
-updateTimerDisplay();
-
-function setPomodoroTimes(){
-let s=parseInt(studyTimeInput.value),
-b=parseInt(breakTimeInput.value);
-if(s){studyTime=s*60; localStorage.setItem("studyTime",studyTime);}
-if(b){breakTime=b*60; localStorage.setItem("breakTime",breakTime);}
-time=studyTime;
-updateTimerDisplay();
-}
-
-function startTimer(){
-clearInterval(int);
-int=setInterval(()=>{
-time--;
-
-if(time<=0){
-if(isStudy){
-sessions++;
-totalTime+=studyTime;
-localStorage.setItem("sessions",sessions);
-localStorage.setItem("totalTime",totalTime);
-}
-isStudy=!isStudy;
-time=isStudy?studyTime:breakTime;
-updateStats();
-}
-updateTimerDisplay();
-},1000);
-}
-
-function pauseTimer(){clearInterval(int)}
-function resetTimer(){time=studyTime; updateTimerDisplay();}
-
-/* AUTO SAVE TIMER */
-setInterval(()=>{
-localStorage.setItem("timerState",JSON.stringify({time,isStudy}));
-},2000);
-
 /* WALLPAPER */
 function setWallpaper(url){
-if(url==="black"){document.body.style.background="black";}
-else{document.body.style.background=`url('${url}') center/cover fixed`;}
+document.body.style.background=url==="black"
+?"black"
+:`url('${url}') center/cover fixed`;
 localStorage.setItem("wallpaper",url);
 }
-function setCustomWallpaper(){setWallpaper(customWall.value);}
-let savedWall=localStorage.getItem("wallpaper");
-if(savedWall) setWallpaper(savedWall);
+let w=localStorage.getItem("wallpaper");
+if(w) setWallpaper(w);
+
+/* SHORTCUTS */
+function openChrome(){window.open("https://google.com")}
+function openChatGPT(){window.open("https://chatgpt.com")}
+function openSpotify(){window.open("https://open.spotify.com")}
 
 </script>
 
 </body>
 </html>
-

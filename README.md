@@ -67,6 +67,8 @@ A lightweight, browser-based **study operating system** designed to boost produc
   * Google (Chrome shortcut)
   * ChatGPT
   * Spotify
+  * Notion(NEW)
+  * NotebookLM(NEW)
 
 ---
 
@@ -74,7 +76,7 @@ A lightweight, browser-based **study operating system** designed to boost produc
 
 * Change wallpaper:
 
-  * Default options
+  * Default options(2 NEW ADDED!!!)
   * Custom image URL
 * Saved preferences persist across sessions
 

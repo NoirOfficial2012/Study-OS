@@ -154,16 +154,84 @@ opacity:0.8;
 <div class="icon" onclick="openChrome()"><img src="https://img.icons8.com/color/48/chrome--v1.png"></div>
 <div class="icon" onclick="openChatGPT()"><img src="https://img.icons8.com/fluency/48/bot.png"></div>
 <div class="icon" onclick="openSpotify()"><img src="https://img.icons8.com/fluency/48/spotify.png"></div>
+<div class="icon" onclick="openNotion()"><img src="https://chko.org/dock/notion.webp"></div>
+<div class="icon" onclick="openNotebookLM()"><img src="https://cdn.worldvectorlogo.com/logos/google-notebooklm-logo-icon.svg"></div>
 <div class="icon" onclick="openApp('settings')"><img src="https://img.icons8.com/fluency/48/settings.png"></div>
 </div>
 
-<!-- TIMER -->
+<!-- Pomodoro -->
 <div id="timer" class="window glass">
-<div class="titlebar"><b>Pomodoro</b><button onclick="closeApp('timer')">✕</button></div>
-<h2 id="time">25:00</h2>
-<button onclick="startTimer()">Start</button>
-<button onclick="pauseTimer()">Pause</button>
+  <div class="titlebar">
+    <b>Pomodoro</b>
+    <button onclick="closeApp('timer')">✕</button>
+  </div>
+
+  <h2 id="mode">Work</h2>
+  <h2 id="time">25:00</h2>
+
+  <button onclick="startTimer()">Start</button>
+  <button onclick="pauseTimer()">Pause</button>
+  <button onclick="resetTimer()">Reset</button>
 </div>
+
+<script>
+let workTime = 25 * 60;
+let breakTime = 5 * 60;
+
+let totalTime = workTime;
+let timer;
+let running = false;
+let isWorkMode = true;
+
+function updateDisplay() {
+  let minutes = Math.floor(totalTime / 60);
+  let seconds = totalTime % 60;
+
+  document.getElementById("time").innerText =
+    String(minutes).padStart(2, '0') + ":" +
+    String(seconds).padStart(2, '0');
+
+  document.getElementById("mode").innerText =
+    isWorkMode ? "Work" : "Break";
+}
+
+function switchMode() {
+  isWorkMode = !isWorkMode;
+  totalTime = isWorkMode ? workTime : breakTime;
+
+  alert(isWorkMode ? "Back to Work!" : "Break Time!");
+}
+
+function startTimer() {
+  if (running) return;
+  running = true;
+
+  timer = setInterval(() => {
+    if (totalTime <= 0) {
+      switchMode();
+    } else {
+      totalTime--;
+    }
+    updateDisplay();
+  }, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timer);
+  running = false;
+}
+
+function resetTimer() {
+  clearInterval(timer);
+  running = false;
+  isWorkMode = true;
+  totalTime = workTime;
+  updateDisplay();
+}
+
+// Initialize
+updateDisplay();
+</script>
 
 <!-- TASKS -->
 <div id="tasks" class="window glass">
@@ -216,14 +284,51 @@ opacity:0.8;
 
 <!-- STATS -->
 <div id="stats" class="window glass">
-<div class="titlebar"><b>Stats</b><button onclick="closeApp('stats')">✕</button></div>
-<p id="studySessions"></p>
+  <div class="titlebar">
+    <b>Stats</b>
+    <button onclick="closeApp('stats')">✕</button>
+  </div>
+
+  <p id="studySessions">Sessions Completed: 0</p>
 </div>
+
+<script>
+// Load saved value or default to 0
+let sessionsCompleted = localStorage.getItem("sessionsCompleted")
+  ? parseInt(localStorage.getItem("sessionsCompleted"))
+  : 0;
+
+// Update UI
+function updateStats() {
+  document.getElementById("studySessions").innerText =
+    "Sessions Completed: " + sessionsCompleted;
+}
+
+function completeSession() {
+  sessionsCompleted++;
+  localStorage.setItem("sessionsCompleted", sessionsCompleted);
+  updateStats();
+}
+
+function switchMode() {
+  if (isWorkMode) {
+    completeSession();
+  }
+
+  isWorkMode = !isWorkMode;
+  totalTime = isWorkMode ? workTime : breakTime;
+}
+
+// Initialize on load
+updateStats();
+</script>
 
 <!-- SETTINGS -->
 <div id="settings" class="window glass">
 <div class="titlebar"><b>Settings</b><button onclick="closeApp('settings')">✕</button></div>
 <button onclick="setWallpaper('https://wallpaperaccess.com/full/317501.jpg')">Ocean</button>
+<button onclick="setWallpaper('https://m.gettywallpapers.com/wp-content/uploads/2022/06/4k-Aesthetic-Anime-Wallpaper-2023-scaled.jpg')">Anime</button>
+<button onclick="setWallpaper('https://wallpapercave.com/wp/wp9036655.jpg')">Sea Of Thieves</button>
 <button onclick="setWallpaper('black')">Black</button>
 <input id="customWall">
 <button onclick="setWallpaper(customWall.value)">Custom</button>
@@ -302,7 +407,8 @@ if(w) setWallpaper(w);
 function openChrome(){window.open("https://google.com")}
 function openChatGPT(){window.open("https://chatgpt.com")}
 function openSpotify(){window.open("https://open.spotify.com")}
-
+function openNotion(){window.open("https://www.notion.com/")}
+function openNotebookLM(){window.open("https://notebooklm.google/")}
 </script>
 
 </body>
